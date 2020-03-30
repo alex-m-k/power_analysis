@@ -3,8 +3,10 @@ title: "Preliminary power analysis"
 # author: Alex K
 # date: 3/29/2020
 output: 
-  html_document:
-    keep_md: TRUE
+  prettydoc::html_pretty:
+    theme: leonids
+    highlight: github
+        # keep_md: TRUE
 bibliography: power.bib
     
 ---
