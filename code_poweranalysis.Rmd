@@ -5,6 +5,8 @@ title: "Preliminary power analysis"
 output: 
   html_document:
     keep_md: TRUE
+bibliography: power.bib
+    
 ---
 
 ```{r setup, include=FALSE}
@@ -36,7 +38,11 @@ plot_theme <- theme(panel.border = element_blank(),
 
 ```
 
-# Estimating the likely power and minimal detectable effect sizes of our study
+# Summary
+
+/This could change/ So far, it looks to me like we should be good to detect an effect, based on two steps.
+
+# Estimating our study's likely power and minimal detectable effect size 
 
 Here, I walk through several methods for conducting power analyses. Power analysis grows more complex as our design grows more complex. Nearly any of the models we intend to run are complex enough that no off-the-shelf method for conducting power analyses will suffice. As a preliminary step, I thus perform a power analysis of perhaps the simplest sort we might do and still stay close to our design. I look at our likely power to detect an effect for a change in perceived stress in our survey. In this case, we are dealing with repeated measures (pre- and post-) on individual subjects within clusters. This is already more complicated than textbook examples; below I suggest ways we could try to make the power analysis more to true to reality. 
 
@@ -46,7 +52,7 @@ The bad news is that the standard ICC no longer works. We don't just have to acc
 
 I see three ways forward:
 
-1. Take the paramters that we can get from existing studies (e.g., *Kossek et al. 2017*)
+1. Take the parameters that we can get from existing studies [e.g., @Kossek_2019]
 2. Use underlying data from an existing study
 3. Simulate our own data
 
@@ -54,7 +60,7 @@ In what follows, I attempt 1 and 3. The middle option, 2, might actually be the 
 
 ## Using parameters from existing studies
 
-Here I conduct a power analysis using formulas provided by McConnell and Vera-Hernandez (2015). 
+Here I conduct a power analysis using formulas provided by @McConnell_2015; [see @Teerenstra_2012; and @moyer2019correct as well]. 
 
 The minimum detectable effect (MDE) for a difference-in-differences with two periods is:
 
@@ -113,11 +119,11 @@ beta <- 0.80
 t_beta <- abs(qt((beta / 2), df))
 ```
 
-Variances. This is where things get tricky. We don't have an estimate for each variance. What I will attempt to do is set one variance based on Kossek et al. (2017) and then play around with the others. Note that I am not entirely sure I am using the Kossek values correctly. 
+Variances. This is where things get tricky. We don't have an estimate for each variance. What I will attempt to do is set one variance based on @Kossek_2019 and then play around with the others. Note that I am not entirely sure I am using the Kossek values correctly. 
 
 \setlength{\leftskip}{2cm}
 
-Overall variance, $\sigma^2$, can, I believe, be derived using Kossek et al. 2017, Table 2. That is, we sum the variance of the baseline and 6-month outcome because 
+Overall variance, $\sigma^2$, can, I believe, be derived using @Kossek_2019, Table 2. That is, we sum the variance of the baseline and 6-month outcome because 
 $$var(x + y) = var(x) + var(y) + cov(x, y)$$
 and because--and this where I am not certain--we can derive the covariance from the correlation provided in Table 2:
 $$corr = \frac{cov(x, y)}{\sigma_x \sigma_y}$$
@@ -240,7 +246,16 @@ ggplot(dat_af,
 
 
 ```
-## References
 
-* Kossek
-* McDonell
+What does this imply for our MDE? If we assume $rho$ is equal to 0.02 and $r$ is equal to 0.50 (which I am selecting abritrarily), we would have and MDE equal to 0.527. The standard deviation of this outcome in @Kossek_2019 is 4.809 ($\sqrt{\sigma^2}$). If we divide the MDE by $\sigma^2$, we get 0.11, which Cohen's guideline is small standardized effect size.[^1]
+
+Ideas for improving this measure:
+
+* Look at existing studies to come up with guesses for $\rho_p$ and $\rho_c$, which would allow us to finetune the value of $r$.
+
+[^1]: I could use help verifying that the MDE I generating ($\delta$) is not already standardized. In other words, is 0.527 in units of perceived stress or in standard deviations?
+
+
+## Simulating our own data
+
+## References
