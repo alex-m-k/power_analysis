@@ -1617,7 +1617,7 @@ delta_cov &lt;- sqrt((2* sigma2 * (1 - r) * (t_alpha + t_beta)^2 * (1 + (m - 1) 
 <p>An alternative approach is to generate our own dataset and see what kind of power we would have to detect hypothesized effects. This approach gives us much more flexibility to generate estimates tailored to our setting, but it requires us to come up with values for multiple parameters, and these values are not readily available. What I do here is use approximate values from relevant studies.</p>
 <div id="tuning-the-parameters-1" class="section level3">
 <h3><span class="header-section-number">2.2.1</span> Tuning the parameters</h3>
-<p>Here are the parameter and the value I selected:</p>
+<p>Here are the parameters and the value I selected:</p>
 <ul>
 <li><span class="math inline">\(\sigma\)</span>, overall SD: 4.809; source: see use of <span class="citation">Kossek et al. (2019)</span> above</li>
 <li><span class="math inline">\(\rho\)</span>, ICC: 0.02; source: upperbound on nursing home study</li>
@@ -1632,11 +1632,12 @@ delta_cov &lt;- sqrt((2* sigma2 * (1 - r) * (t_alpha + t_beta)^2 * (1 + (m - 1) 
 <pre class="r"><code># k, 24 clusters
 k &lt;- 24
 
-# m, number of associates in each cluster, coming from FC info
-#   I left out Secaucus, Coppell, Denver, and Anchorage
+# m, number of associates in each cluster
+#   I leave out 4 buildings and multiply the results by .66 reseponse rate
 m_assoc &lt;- c(281, 134, 48, 262, 191, 197, 128, 75,
              157, 116, 41, 311, 304, 274, 282, 104,
              243, 432, 228, 141, 142, 329, 216, 189)
+m_assoc &lt;- round(.66 * m_assoc, 0)
 n &lt;- sum(m_assoc)
 
 # Assign treatment to cluster
@@ -1686,7 +1687,7 @@ y0 &lt;- 9.5 + (sqrt(rho) * sigma_c1[fc]) + (sqrt(1-rho) * sigma_p1)
 # This was the decrease among controls in Kossek et al. 2019
 y1 &lt;- 9.43 + (sqrt(rho) * sigma_c2[fc]) + (sqrt(1-rho) * sigma_p2)
 
-# Add treatment effect, setting value to 0.5
+# Add treatment effect, setting value to -0.97
 y1 &lt;- ifelse(treatment[fc] == 1,
              y1 - 0.97,
              y1)</code></pre>
@@ -1717,7 +1718,7 @@ Power
 0.1
 </td>
 <td style="text-align:right;">
-0.901
+0.878
 </td>
 </tr>
 <tr>
@@ -1725,7 +1726,7 @@ Power
 0.3
 </td>
 <td style="text-align:right;">
-0.947
+0.904
 </td>
 </tr>
 <tr>
@@ -1733,7 +1734,7 @@ Power
 0.5
 </td>
 <td style="text-align:right;">
-0.963
+0.909
 </td>
 </tr>
 <tr>
@@ -1741,7 +1742,7 @@ Power
 0.9
 </td>
 <td style="text-align:right;">
-1.000
+0.986
 </td>
 </tr>
 <tr grouplength="4">
@@ -1754,7 +1755,7 @@ Power
 0.1
 </td>
 <td style="text-align:right;">
-0.981
+0.978
 </td>
 </tr>
 <tr>
@@ -1762,7 +1763,7 @@ Power
 0.3
 </td>
 <td style="text-align:right;">
-0.994
+0.985
 </td>
 </tr>
 <tr>
@@ -1770,7 +1771,7 @@ Power
 0.5
 </td>
 <td style="text-align:right;">
-0.993
+0.987
 </td>
 </tr>
 <tr>
@@ -1778,7 +1779,7 @@ Power
 0.9
 </td>
 <td style="text-align:right;">
-1.000
+0.997
 </td>
 </tr>
 </tbody>
@@ -1797,11 +1798,20 @@ Power
 <div id="next-stepsthings-to-consider" class="section level1">
 <h1><span class="header-section-number">3</span> Next steps/things to consider</h1>
 <ul>
+<li>Right now, I am not sure that the overall <span class="math inline">\(\rho\)</span> value (0.02) I am using is the correct one. We are getting it from cross-sectional studies; does it make to apply this to time series data? Would we epect <span class="math inline">\(\rho\)</span> to be different in this situation?
+<ul>
+<li>One way to check would be calculate <span class="math inline">\(\rho\)</span> from the variance values I have chosen. However, I am having a hard time verifying how to calculate these variances, such as <span class="math inline">\(\sigma_{pt}\)</span> and <span class="math inline">\(\sigma_{c}\)</span>, from the data I have generated.</li>
+</ul></li>
+<li>There is an R package called swCRTdesign that we can likely use to validate these conclusions, though it requires the same parameters as inputs.</li>
+<li>The webpage <a href="https://clusterrcts.shinyapps.io/rshinyapp/">Shiny CRT</a> offers an application to calculate power. When I put in what I think are reasonable parameters, we have good power.
+<ul>
+<li>When I select “parallel” design vs. “parallel with baseline measure” in the app, our power drops tremendously. This may show why we have reasonable power even though our number of clusters is small: clustering becomes a very big problem when you have one time period, but the problem is alleviated, to some degree, when you add another time period.</li>
+</ul></li>
 <li>We could look at existing studies to come up with guesses for <span class="math inline">\(\rho_p\)</span> and <span class="math inline">\(\rho_c\)</span>, which would allow us to finetune the value of <span class="math inline">\(r\)</span>.</li>
 <li>Note that Dennerlein’s method in the grant application would entail finding an added estimate of variance (at the department level) and that the equation he appears to have used is for cross-sectional data in a single time period.</li>
 <li>The treatment effect was insignificant in <span class="citation">Kossek et al. (2019)</span>, so I’m not sure what a legitimate effect size would be for perceived stress. I’ve gotten around this in the simulation by using a standardized effect size.</li>
-<li>We could play around with the number of associates in each time period to see how attrition would affect the results.</li>
 <li>Can we use the raw data from a study to calculate all the <span class="math inline">\(\rho\)</span>’s we need?</li>
+<li>In medical trials, they have a research design called the stepped wedge <span class="citation">(e.g., Woertman et al. 2013)</span> that is akin to our design, and it is recommended as a way to boost power.</li>
 </ul>
 <div id="references" class="section level2 unnumbered">
 <h2>References</h2>
@@ -1823,6 +1833,9 @@ Power
 </div>
 <div id="ref-Teerenstra_2012">
 <p>Teerenstra, Steven, Sandra Eldridge, Maud Graff, Esther Hoop, and George F. Borm. 2012. “A Simple Sample Size Formula for Analysis of Covariance in Cluster Randomized Trials.” <em>Statistics in Medicine</em> 31 (20): 2169–78. <a href="https://doi.org/10.1002/sim.5352">https://doi.org/10.1002/sim.5352</a>.</p>
+</div>
+<div id="ref-WOERTMAN2013752">
+<p>Woertman, Willem, Esther [de Hoop], Mirjam Moerbeek, Sytse U. Zuidema, Debby L. Gerritsen, and Steven Teerenstra. 2013. “Stepped Wedge Designs Could Reduce the Required Sample Size in Cluster Randomized Trials.” <em>Journal of Clinical Epidemiology</em> 66 (7): 752–58. <a href="https://doi.org/https://doi.org/10.1016/j.jclinepi.2013.01.009">https://doi.org/https://doi.org/10.1016/j.jclinepi.2013.01.009</a>.</p>
 </div>
 </div>
 </div>

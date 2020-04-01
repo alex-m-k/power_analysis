@@ -273,7 +273,7 @@ An alternative approach is to generate our own dataset and see what kind of powe
 
 ### Tuning the parameters
 
-Here are the parameter and the value I selected:
+Here are the parameters and the value I selected:
 
 * $\sigma$, overall SD: 4.809; source: see use of @Kossek_2019 above
 * $\rho$, ICC: 0.02; source: upperbound on nursing home study
@@ -287,15 +287,16 @@ Here are the parameter and the value I selected:
 
 These parameters can be plugged into a data generating function to create a mock dataset.
 
-```{r sim_dat}
+```{r sim_dat, eval = FALSE, echo = TRUE}
 # k, 24 clusters
 k <- 24
 
-# m, number of associates in each cluster, coming from FC info
-#   I left out Secaucus, Coppell, Denver, and Anchorage
+# m, number of associates in each cluster
+#   I leave out 4 buildings and multiply the results by .66 reseponse rate
 m_assoc <- c(281, 134, 48, 262, 191, 197, 128, 75,
              157, 116, 41, 311, 304, 274, 282, 104,
              243, 432, 228, 141, 142, 329, 216, 189)
+m_assoc <- round(.66 * m_assoc, 0)
 n <- sum(m_assoc)
 
 # Assign treatment to cluster
@@ -345,13 +346,13 @@ y0 <- 9.5 + (sqrt(rho) * sigma_c1[fc]) + (sqrt(1-rho) * sigma_p1)
 # This was the decrease among controls in Kossek et al. 2019
 y1 <- 9.43 + (sqrt(rho) * sigma_c2[fc]) + (sqrt(1-rho) * sigma_p2)
 
-# Add treatment effect, setting value to 0.5
+# Add treatment effect, setting value to -0.97
 y1 <- ifelse(treatment[fc] == 1,
              y1 - 0.97,
              y1)
 ```
 
-```{r verify_ICCs, include = FALSE}
+```{r verify_ICCs, include = FALSE, eval = FALSE}
 # Verify that ICCs were correctly set
 # Generate cluster component
 # Period 1
@@ -385,10 +386,11 @@ simulate <- function(cluster_autocorr){
   
   # m, number of associates in each cluster, coming from FC info
   #   I left out Secaucus, Coppell, Denver, and Anchorage
-  m_assoc <- c(281, 134, 48, 262, 191, 197, 128, 75,
-               157, 116, 41, 311, 304, 274, 282, 104,
-               243, 432, 228, 141, 142, 329, 216, 189)
-  n <- sum(m_assoc)
+m_assoc <- c(281, 134, 48, 262, 191, 197, 128, 75,
+             157, 116, 41, 311, 304, 274, 282, 104,
+             243, 432, 228, 141, 142, 329, 216, 189)
+m_assoc <- round(.66 * m_assoc, 0)
+n <- sum(m_assoc)
   
   # Assign treatment to cluster
   treatment <- if((k %% 2) == 0){
@@ -437,7 +439,7 @@ simulate <- function(cluster_autocorr){
   # This was the decrease among controls in Kossek et al. 2019
   y1 <- 9.43 + (sqrt(rho) * sigma_c2[fc]) + (sqrt(1-rho) * sigma_p2)
   
-  # Add treatment effect, setting value to 0.5
+  # Add treatment effect, setting value to -0.97
   y1 <- ifelse(treatment[fc] == 1,
                y1 - 0.97,
                y1)
@@ -517,6 +519,7 @@ This leads us to conclude that we have sufficient power.
 * The treatment effect was insignificant in @Kossek_2019, so I'm not sure what a legitimate effect size would be for perceived stress. I've gotten around this in the simulation by using a standardized effect size.
 * We could play around with the number of associates in each time period to see how attrition would affect the results.
 * Can we use the raw data from a study to calculate all the $\rho$'s we need?
+* In medical trials, they have a research design called the stepped wedge [e.g., @WOERTMAN2013752] that is akin to our design, and it is recommended as a way to boost power.
 
 [^fnmde]: I could use a second set of eyes to confirm that the MDE I have generated ($\delta$) is not already standardized. In other words, is the MDE of 0.527 in units of perceived stress or in standard deviations?
 
