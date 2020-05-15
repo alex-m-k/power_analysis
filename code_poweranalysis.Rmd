@@ -278,7 +278,7 @@ Here are the parameters and the value I selected:
 * $\sigma$, overall SD: 4.809; source: see use of @Kossek_2019 above
 * $\rho$, ICC: 0.02; source: upperbound on nursing home study
 * $\rho_p$, person autocorrelation: 0.55; source: @Cohen_1983[^fncohn] 
-* $\rho_p$, cluster autocorrelation: here I am not sure what a good value is, so I try 0.1, 0.3, 0.5, and 0.9
+* $\rho_c$, cluster autocorrelation: here I am not sure what a good value is, so I try 0.1, 0.3, 0.5, and 0.9
 * $\delta$, effect size: 0.97; source: 0.2$\cdot\sigma \approx$ small effect size according to @Cohen_1992 
 
 [^fncohn]: This value comes from measuring the perceived stress of subjects twice, separated by 6 weeks.
@@ -514,10 +514,14 @@ This leads us to conclude that we have sufficient power.
 
 # Next steps/things to consider
 
+* Right now, I am not sure that the overall $\rho$ value (0.02) I am using is the correct one. We are getting it from cross-sectional studies; does it make to apply this to time series data? Would we epect $\rho$ to be different in this situation?
+  + One way to check would be calculate $\rho$ from the variance values I have chosen. However, I am having a hard time verifying how to calculate these variances, such as $\sigma_{pt}$ and $\sigma_{c}$, from the data I have generated.
+* There is an R package called swCRTdesign that we can likely use to validate these conclusions, though it requires the same parameters as inputs.
+* The webpage [Shiny CRT](https://clusterrcts.shinyapps.io/rshinyapp/) offers an application to calculate power. When I put in what I think are reasonable parameters, we have good power.
+  + When I select "parallel" design vs. "parallel with baseline measure" in the app, our power drops tremendously. This may show why we have reasonable power even though our number of clusters is small: clustering becomes a very big problem when you have one time period, but the problem is alleviated, to some degree, when you add another time period.
 * We could look at existing studies to come up with guesses for $\rho_p$ and $\rho_c$, which would allow us to finetune the value of $r$.
 * Note that Dennerlein's method in the grant application would entail finding an added estimate of variance (at the department level) and that the equation he appears to have used is for cross-sectional data in a single time period.
 * The treatment effect was insignificant in @Kossek_2019, so I'm not sure what a legitimate effect size would be for perceived stress. I've gotten around this in the simulation by using a standardized effect size.
-* We could play around with the number of associates in each time period to see how attrition would affect the results.
 * Can we use the raw data from a study to calculate all the $\rho$'s we need?
 * In medical trials, they have a research design called the stepped wedge [e.g., @WOERTMAN2013752] that is akin to our design, and it is recommended as a way to boost power.
 
